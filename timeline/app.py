@@ -15,10 +15,9 @@ def get_page(page_num):
 def print_response(response):
     for match in response["messages"]["matches"]:
         timestamp = datetime.fromtimestamp(float(match['ts']), timezone.utc)
-        message = match['text']
-        message.replace("\r\n", " ")
+        message = match['text'].replace('\n', ' ')
         print((
-            f"{ timestamp.astimezone() } "
+            f"{ timestamp.astimezone().strftime('%Y-%m-%d %H:%M') } "
             f"#{ match['channel']['name'][:CHANNEL_PREVIEW_LENGTH].ljust(CHANNEL_PREVIEW_LENGTH) } "
             f"{ message[:MESSAGE_PREVIEW_LENGTH].ljust(MESSAGE_PREVIEW_LENGTH) } "
             f"{ match['permalink'] } "
