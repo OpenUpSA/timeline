@@ -1,16 +1,14 @@
-import os
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 import json
 from datetime import datetime, timezone
-import argparse
 
 MESSAGE_PREVIEW_LENGTH = 50
 CHANNEL_PREVIEW_LENGTH = 10
 
 
 def get_page(page_num):
-    return app.client.search_messages(query="from:jd after:February", sort="timestamp", page=page_num)
+    return app.client.search_messages(query="from:jd after:March", sort="timestamp", page=page_num)
 
 def print_response(response):
     for match in response["messages"]["matches"]:
@@ -24,13 +22,6 @@ def print_response(response):
         ))
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--config', default="~/.timeline.json")
-    args = parser.parse_args()
-
-    config_path = args.config
-    config = json.load(open(os.path.expanduser(config_path), 'rb'))
 
     app = App(token=config["slack"]["user_token"])
 
