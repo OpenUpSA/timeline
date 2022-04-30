@@ -1,5 +1,7 @@
 import requests
 from requests.auth import HTTPBasicAuth
+from .event import Event
+from dateutil import parser
 
 
 def events(config):
@@ -17,7 +19,6 @@ def events(config):
 
     while page_events != []:
         params = {"page": page}
-        print(f"Fetching page {page}")
         r = session.get(f"https://api.github.com/users/{username}/events/public", params=params)
         if r.status_code == 403:
             print(r.headers)
@@ -38,7 +39,15 @@ def events(config):
             break
 
 
-    print(len(events))
-
     for event in events:
-        print(event["created_at"])
+        url = None
+        if event["type"] == "PullRequestReviewCommentEvent":
+            url = event["payload"]["comment"]["html_url"]
+
+        yield Event(
+            parser.parse(event["created_at"]),
+            "github",
+            event["repo"]["name"],
+            event["type"],
+            url,
+        )

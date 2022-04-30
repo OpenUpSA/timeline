@@ -3,6 +3,11 @@ import argparse
 import json
 import os
 
+MEDIUM_LENGTH = 10
+CHANNEL_LENGTH = 30
+PREVIEW_LENGTH = 50
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', default="~/.timeline.json")
@@ -11,4 +16,16 @@ def main():
     config_path = args.config
     config = json.load(open(os.path.expanduser(config_path), 'rb'))
 
-    github_events(config["github"])
+    events = []
+    events += github_events(config["github"])
+
+    events = sorted(events, key=lambda e: e.timestamp)
+
+    for event in events:
+        print((
+            f"{ event.timestamp.astimezone().strftime('%Y-%m-%d %H:%M') } "
+            f"{ event.medium[:MEDIUM_LENGTH].ljust(MEDIUM_LENGTH) } "
+            f"{ event.channel[:CHANNEL_LENGTH].ljust(CHANNEL_LENGTH) } "
+            f"{ event.preview[:PREVIEW_LENGTH].ljust(PREVIEW_LENGTH) } "
+            f"{ event.link }"
+        ))
