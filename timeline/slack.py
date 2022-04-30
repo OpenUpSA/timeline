@@ -2,31 +2,32 @@ from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 import json
 from datetime import datetime, timezone
-
-MESSAGE_PREVIEW_LENGTH = 50
-CHANNEL_PREVIEW_LENGTH = 10
+from .event import Event
 
 
-def get_page(page_num):
-    return app.client.search_messages(query="from:jd after:March", sort="timestamp", page=page_num)
+def get_page(app, page_num, username):
+    return app.client.search_messages(query=f"from:{ username } after:March", sort="timestamp", page=page_num)
 
-def print_response(response):
+
+def make_events(response):
     for match in response["messages"]["matches"]:
         timestamp = datetime.fromtimestamp(float(match['ts']), timezone.utc)
         message = match['text'].replace('\n', ' ')
-        print((
-            f"{ timestamp.astimezone().strftime('%Y-%m-%d %H:%M') } "
-            f"#{ match['channel']['name'][:CHANNEL_PREVIEW_LENGTH].ljust(CHANNEL_PREVIEW_LENGTH) } "
-            f"{ message[:MESSAGE_PREVIEW_LENGTH].ljust(MESSAGE_PREVIEW_LENGTH) } "
-            f"{ match['permalink'] } "
-        ))
+        yield Event(
+            timestamp,
+            "slack",
+            match['channel']['name'],
+            message,
+            match['permalink'],
+        )
 
 
+def get_events(config):
+    app = App(token=config["user_token"])
+    username = config["username"]
 
-    app = App(token=config["slack"]["user_token"])
-
-    response = get_page(1)
-    print_response(response)
+    response = get_page(app, 1, username)
 
     for page_num in range(2, response["messages"]["pagination"]["page_count"] + 1):
-        print_response(get_page(page_num))
+        for event in make_events(get_page(app, page_num, username)):
+            yield event

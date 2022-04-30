@@ -11,6 +11,13 @@ Copy the user token into your config file like
 ```
 {
   "slack": {
-    "user_token": "...here..."
+    "user_token": "...here...",
+    "username": "fbloggs"
+  },
+  "github": {
+    "github": {
+      "username": "fredbloggs",
+      "access_token": "...prersosnal access token"
+    }
   }
 }

@@ -4,7 +4,7 @@ from .event import Event
 from dateutil import parser
 
 
-def events(config):
+def get_events(config):
     start_date = "2022-04-01"
     username = config['username']
     access_token = config['access_token']
@@ -41,13 +41,23 @@ def events(config):
 
     for event in events:
         url = None
+        preview = event["type"]
+
         if event["type"] == "PullRequestReviewCommentEvent":
             url = event["payload"]["comment"]["html_url"]
+        elif event["type"] == "PullRequestReviewEvent":
+            url = event["payload"]["review"]["html_url"]
+            preview += f" { event['payload']['pull_request']['title']}"
+        elif event["type"] == "PullRequestEvent":
+            url = event["payload"]["pull_request"]["html_url"]
+            preview += f" { event['payload']['pull_request']['title'] }"
+        elif event["type"] == "PushtEvent":
+            preview += f" { event['payload']['commits']['message'] }"
 
         yield Event(
             parser.parse(event["created_at"]),
             "github",
             event["repo"]["name"],
-            event["type"],
+            preview,
             url,
         )

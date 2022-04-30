@@ -1,4 +1,5 @@
-from .github import events as github_events
+from .github import get_events as github_events
+from .slack import get_events as slack_events
 import argparse
 import json
 import os
@@ -18,6 +19,7 @@ def main():
 
     events = []
     events += github_events(config["github"])
+    events += slack_events(config["slack"])
 
     events = sorted(events, key=lambda e: e.timestamp)
 
