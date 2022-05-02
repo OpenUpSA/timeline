@@ -22,6 +22,7 @@ def main():
     events += slack_events(config["slack"])
 
     events = sorted(events, key=lambda e: e.timestamp)
+    events.reverse()
 
     for event in events:
         print((
